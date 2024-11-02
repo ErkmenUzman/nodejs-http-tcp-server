@@ -4,7 +4,7 @@
   "description": "Test to use Node.js",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon HTTPS_server.js"
+    "start": "nodemon --env-file=.env HTTPS_server.js"
   },
   "author": "Erkmen",
   "type": "module",
