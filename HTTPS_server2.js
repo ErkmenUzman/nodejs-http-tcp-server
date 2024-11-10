@@ -11,19 +11,19 @@ const users = [
 ];
 
 //  Logger middleware
-const logger = (req,res,next) => {
+const logger = (req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
 }
 
 //  JSON middleware 
-const jsonMiddleware = (req,res,next) => {
+const jsonMiddleware = (req, res, next) => {
     res.setHeader('Content-type', 'application/json');
     next();
 }
 
 //  Route handler for GET /api/users
-const getUsersHandler = (req,res) => {
+const getUsersHandler = (req, res) => {
     res.end(JSON.stringify(users)); // Send JSON data as response
 }
 
@@ -43,6 +43,23 @@ const getUserByIdHandler = (req,res) => {
         res.end();
 }
 
+// Route handler for POST /api/users
+const createUserHandler = (req, res) => {
+    let body = "";
+    // listen for data
+    req.on('data', (chunk) => {
+        body += chunk.toString();
+    });
+    req.on('end', () => {
+        const newUser = JSON.parse(body);
+        //newUser.id = users.length ? users[users.length - 1].id + 1 : 1;
+        users.push(newUser);
+        res.statusCode = 201;
+        res.write(JSON.stringify(newUser));
+        res.end();
+    });
+}
+
 // Not Found Handler
 const notFoundHandler = (req,res) => {
     res.statusCode = 404;
@@ -57,12 +74,13 @@ const server = createServer((req,res) => {
                 getUsersHandler(req,res);
             } else if (req.url.match(/\/api\/users\/([0-9]+)/) && req.method === 'GET') {
                 getUserByIdHandler(req,res);
+            } else if (req.url === '/api/users' && req.method === 'POST') {
+                createUserHandler(req, res);
             } else {
                 notFoundHandler(req,res);
             }
         })
     });
-    
 });
 
 server.listen(PORT, () => {
